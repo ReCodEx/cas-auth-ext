@@ -1,0 +1,46 @@
+{layout 'layout.latte'}
+
+{block content}
+    <h2 class="text-success mb-4">User is already authenticated in CAS</h2>
+
+	<table class="table table-bordered">
+    <tbody>
+        <tr>
+            <th>ID:</th>
+            <td>{$id}</td>
+        </tr>
+        <tr>
+            <th>Name:</th>
+            <td>{$firstName}</td>
+        </tr>
+        <tr>
+            <th>Surname:</th>
+            <td>{$lastName}</td>
+        </tr>
+        <tr>
+            <th>E-mail:</th>
+            <td>{$mail}</td>
+        </tr>
+        <tr>
+            <th>Authenticated:</th>
+            <td>{$authenticatedAt|date:'j. n. Y (H:i:s)'}</td>
+        </tr>
+        <tr>
+            <th>Affiliation:</th>
+            <td>
+                <ul>
+                    <li n:foreach="$affiliations as $affiliation"><code>{$affiliation}</code></li>
+                </ul>
+            </td>
+        </tr>
+    </tbody>
+    </table>
+
+    <form method="POST" action="?action=logout">
+        <div class="text-center mt-4 mb-4">
+            <a class="btn btn-success" href="{$recodexUrl}" role="button">Continue to ReCodEx</a>
+            <button type="submit" class="btn btn-secondary">Logout</button>
+        </div>
+    </form>
+
+{/block}

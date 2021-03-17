@@ -1,0 +1,24 @@
+# copy this template file to config.yaml and make your modifications
+monolog:
+  logfile: 'logs/main.log' # path to log file (relative to application root)
+  severity: 'WARNING'
+
+CAS:
+  server: 'your.cas.server.domain'
+  port: 443
+  uri: '/cas'
+  certificate: '' # path to certificate chain (PEM file, relative to application root)
+
+ReCodEx:
+  uri: 'https://your.recodex.domain/path/to/cas'
+  instanceId: '' # UUID of your recodex instance added into token (allows for immediate user registration)
+  jwtSecret: 'you-must-fill-this!' # this is the secret string for token validation shared with ReCodEx
+  roles:
+    # order does matter -- first matching role is taken
+    - role: student
+      affiliation: # at least one of these affiliations should be present
+        - "student@your.domain"
+    - role: supervisor
+      affiliation: # at least one of these affiliations should be present
+        - "teacher@your.domain"
+        - "employee@your.domain"

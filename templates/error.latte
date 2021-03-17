@@ -1,0 +1,27 @@
+{layout 'layout.latte'}
+
+{block content}
+    <h2 class="text-danger mb-4">Error: CAS returned invalid attributes</h2>
+
+	<table class="table table-bordered">
+    <tbody>
+        <tr n:foreach="$attributes as $attribute" n:class="$attribute->error ? bg-danger">
+            <th>{$attribute->name}</th>
+            <td>
+                {if $attribute->value}
+                    <code>{$attribute->value}</code>
+                {else}
+                    <i>missing</i>
+                {/if}
+            </td>
+        </tr>
+    </tbody>
+    </table>
+
+    <div class="text-center mt-4 mb-4">
+        <form method="POST" action="?action=logout">
+            <button type="submit" class="btn btn-secondary">Logout</button>
+        </form>
+    </div>
+
+{/block}

@@ -1,0 +1,6 @@
+/vendor
+/logs
+/temp
+/config/chain.pem
+/config/config.yaml
+/.vscode
