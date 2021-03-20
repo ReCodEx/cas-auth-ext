@@ -124,6 +124,19 @@ class TokenGenerator
         $this->jwtSecret = $recodexConfig->jwtSecret;
         $this->instanceId = $recodexConfig->safeGet('instanceId', null);
         $this->roles = $recodexConfig->safeGet('roles', []);
+        foreach ($this->roles as $role) {
+            if (empty($role['role']) || !is_string($role['role'])) {
+                throw new ConfigException("Invalid role identification.");
+            }
+            if (empty($role['affiliation']) || !is_array($role['affiliation'])) {
+                throw new ConfigException("Invalid affiliations specified for role {$role['role']}.");
+            }
+            foreach ($role['affiliation'] as $affiliation) {
+                if (empty($affiliation) || !is_string($affiliation)) {
+                    throw new ConfigException("Invalid affiliations specified for role {$role['role']}.");
+                }
+            }
+        }
         $this->logger = $logger;
     }
 
@@ -180,10 +193,10 @@ class TokenGenerator
 
         foreach ($this->roles as $role) {
             // first role that matches affiliations is on
-            foreach ($role->affiliation as $affiliation) {
+            foreach ($role['affiliation'] as $affiliation) {
                 // at least one of the affiliations should match...
                 if (array_key_exists($affiliation, $affIndex)) {
-                    return $role->role;
+                    return $role['role'];
                 }
             }
         }
