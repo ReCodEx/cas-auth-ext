@@ -154,8 +154,11 @@ class TokenGenerator
             $this->$prop = $this->attributes[$attr];
         }
 
-        $mail = $this->attributes['mail'] ?? null;
-        if ($mail && !filter_var($mail, FILTER_VALIDATE_EMAIL)) {
+        $this->mail = $this->attributes['mail'] ?? null;
+        if (is_array($this->mail)) {
+            $this->mail = reset($this->mail); // take the first mail if there are more
+        }
+        if ($this->mail && !filter_var($this->mail, FILTER_VALIDATE_EMAIL)) {
             $errors[] = 'mail';
         }
 
