@@ -146,6 +146,8 @@ class TokenGenerator
      */
     private function validateAttributes(): bool
     {
+        $this->logger->debug("Loaded attributes: " . json_encode($this->attributes));
+
         $errors = [];
         foreach ($this->attributeMapping as $attr => $prop) {
             if (!array_key_exists($attr, $this->attributes) || !$this->attributes[$attr]) {
@@ -168,7 +170,6 @@ class TokenGenerator
 
         if ($errors) {
             $this->logger->warning("Attributes validation failed: " . join(', ', $errors));
-            $this->logger->debug(json_encode($this->attributes));
         }
 
         $this->attributeErrors = $errors;
@@ -239,7 +240,14 @@ class TokenGenerator
      */
     public function getAffiliations(): array
     {
-        return $this->attributes[$this->affiliationKey] ?? [];
+        $affiliations = !empty($this->attributes[$this->affiliationKey])
+            ? $this->attributes[$this->affiliationKey]
+            : [];
+
+        if (!is_array($affiliations)) {
+            $affiliations = [ $affiliations ];
+        }
+        return $affiliations;
     }
 
     /**
