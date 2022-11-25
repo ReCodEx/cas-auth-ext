@@ -165,7 +165,7 @@ class TokenGenerator
         }
 
         if (!array_key_exists($this->affiliationKey, $this->attributes)) {
-            $errors[] = $attr;
+            $errors[] = $this->affiliationKey;
         }
 
         if ($errors) {

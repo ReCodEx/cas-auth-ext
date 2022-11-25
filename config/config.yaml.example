@@ -8,6 +8,7 @@ CAS:
   port: 443
   uri: '/cas'
   certificate: '' # path to certificate chain (PEM file, relative to application root)
+  client_base_url: 'http://localhost/' # where the actual cas-auth-ext application is located
 
 ReCodEx:
   uri: 'https://your.recodex.domain/path/to/cas'

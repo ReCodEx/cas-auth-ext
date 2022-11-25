@@ -17,6 +17,8 @@ use DateTimeInterface;
  */
 class Application
 {
+    private const COOKIE_NAME = 'cas-auth-ext-start';
+
     /**
      * Direct mappings between CAS attributes and properties for ReCodEx auth token.
      * @var array [ CAS attribute => recodex token property ]
@@ -43,6 +45,27 @@ class Application
      * @var Latte|null
      */
     private static $latte = null;
+
+    /**
+     * Sets a cookie that marks the time of the authentication.
+     * @param DateTIme|null $at the mark, null to remove the cookie
+     */
+    private static function setStartedCookie(DateTime $at = null): void
+    {
+        $value = $at === null ? '' : $at->getTimestamp();
+        setcookie(self::COOKIE_NAME, $value, $at === null ? 1 : time() + 365 * 86400, '', '', true, true);
+    }
+
+    private static function getStartedCookie(): ?DateTime
+    {
+        if (empty($_COOKIE[self::COOKIE_NAME]) || !is_numeric($_COOKIE[self::COOKIE_NAME])) {
+            return null;
+        }
+
+        $date = new DateTime();
+        $date->setTimestamp((int)$_COOKIE[self::COOKIE_NAME]);
+        return $date;
+    }
 
     /**
      * Internal function that shows 500 errors.
@@ -86,7 +109,8 @@ class Application
             CAS_VERSION_3_0,
             $casConfig->server,
             $casConfig->safeGet('port', 443),
-            $casConfig->safeGet('uri', '/cas')
+            $casConfig->safeGet('uri', '/cas'),
+            $casConfig->client_base_url
         );
 
         $certificate = $casConfig->safeGet('certificate', null);
@@ -127,6 +151,7 @@ class Application
         if (strtoupper($_SERVER['REQUEST_METHOD']) === 'POST') {
             $action = $_GET['action'] ?? '';
             if ($action === 'logout') {
+                self::setStartedCookie(null);
                 phpCAS::logout();
                 exit;
             }
@@ -182,7 +207,7 @@ class Application
             'mail' => self::$tokenGenerator->getMail(),
             'firstName' => self::$tokenGenerator->getFirstName(),
             'lastName' => self::$tokenGenerator->getLastName(),
-            'authenticatedAt' => self::$tokenGenerator->getAuthenticatedAt(),
+            'authenticatedAt' => self::getStartedCookie(),
             'affiliations' => self::$tokenGenerator->getAffiliations(),
             'recodexUrl' => self::$tokenGenerator->getRedirectUrl(),
         ];
@@ -210,7 +235,11 @@ class Application
             if (!self::$tokenGenerator->load(phpCAS::getAttributes())) {
                 self::showErrorTemplate();
             } else {
-                $authenticatedAt = self::$tokenGenerator->getAuthenticatedAt();
+                $authenticatedAt = self::getStartedCookie();
+                if (!$authenticatedAt) {
+                    self::setStartedCookie(new DateTime());
+                }
+
                 $userLoggedSeconds = $authenticatedAt
                     ? (new DateTime())->getTimestamp() - $authenticatedAt->getTimestamp()
                     : 0;
