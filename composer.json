@@ -11,7 +11,7 @@
     "require": {
         "latte/latte": "^3.0",
         "apereo/phpcas": "^1.6",
-        "firebase/php-jwt": "^6.8",
-        "monolog/monolog": "^3.4"
+        "firebase/php-jwt": "^6.10",
+        "monolog/monolog": "^3.6"
     }
 }
