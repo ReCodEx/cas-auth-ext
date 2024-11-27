@@ -77,7 +77,7 @@ class Application
         http_response_code($httpCode);
         echo "Internal error.";
         if ($message) {
-            echo " $message";
+            echo htmlspecialchars(" $message");
         }
         exit;
     }
