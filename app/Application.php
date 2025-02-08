@@ -9,7 +9,6 @@ use Latte\Loaders\FileLoader;
 use phpCAS;
 use Exception;
 use DateTime;
-use DateTimeInterface;
 
 /**
  * Main class which acts only as a wrapper for static methods.
@@ -18,17 +17,6 @@ use DateTimeInterface;
 class Application
 {
     private const COOKIE_NAME = 'cas-auth-ext-start';
-
-    /**
-     * Direct mappings between CAS attributes and properties for ReCodEx auth token.
-     * @var array [ CAS attribute => recodex token property ]
-     */
-    private static $attributeMapping = [
-        'cunipersonalid' => 'id',
-        'mail' => 'mail',
-        'givenname' => 'firstName',
-        'sn' => 'lastName',
-    ];
 
     /**
      * Internal instance of logging component.
@@ -204,6 +192,7 @@ class Application
     {
         $params = [
             'id' => self::$tokenGenerator->getId(),
+            'login' => self::$tokenGenerator->getLogin(),
             'mail' => self::$tokenGenerator->getMail(),
             'firstName' => self::$tokenGenerator->getFirstName(),
             'lastName' => self::$tokenGenerator->getLastName(),
@@ -254,7 +243,7 @@ class Application
                 }
             }
         } catch (Exception $e) {
-            self::$log->critical("Unhandled exception: " . $e->getMessage(), [ 'exception' => $e ]);
+            self::$log->critical("Unhandled exception: " . $e->getMessage(), ['exception' => $e]);
             self::internalError($e->getMessage());
         }
     }

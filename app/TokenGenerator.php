@@ -4,7 +4,6 @@ namespace App;
 
 use Firebase\JWT\JWT;
 use Monolog\Logger;
-use Exception;
 use DateTime;
 use DateTimeInterface;
 
@@ -30,13 +29,23 @@ class TokenGenerator
     ];
 
     /**
-     * @var string|null CAS user identifier loaded from attributes using mapping
+     * @var string|null CAS user identifier (UKCO) loaded from attributes using mapping
      */
     private $id = null;
 
     public function getId(): ?string
     {
         return $this->id;
+    }
+
+    /**
+     * @var string|null LDAP login (second user identifier)
+     */
+    private $login = null;
+
+    public function getLogin(): ?string
+    {
+        return $this->login;
     }
 
     /**
@@ -172,6 +181,15 @@ class TokenGenerator
             $this->logger->warning("Attributes validation failed: " . join(', ', $errors));
         }
 
+        if (!empty($this->attributes['uid']) && is_array($this->attributes['uid'])) {
+            $logins = array_filter($this->attributes['uid'], function ($login) {
+                return $login !== $this->id && preg_match('/^[a-z][a-z0-9]+$/', $login);
+            });
+            if (count($logins) === 1) {
+                $this->login = reset($logins);
+            }
+        }
+
         $this->attributeErrors = $errors;
         return count($errors) === 0;
     }
@@ -245,7 +263,7 @@ class TokenGenerator
             : [];
 
         if (!is_array($affiliations)) {
-            $affiliations = [ $affiliations ];
+            $affiliations = [$affiliations];
         }
         return $affiliations;
     }
@@ -265,6 +283,11 @@ class TokenGenerator
         // add user identification properties
         foreach ($this->attributeMapping as $prop) {
             $payload[$prop] = $this->$prop;
+        }
+
+        if ($this->login) {
+            // add login as extra ID for LDAP UK
+            $payload['extId'] = ['ldap-uk' => $this->login];
         }
 
         if ($this->instanceId) {
